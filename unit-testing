@@ -1,1 +1,70 @@
+import unittest
+from Lab5_Classes import Numbers, ECG
 
+class TestNumbers(unittest.TestCase):
+    def setUp(self):
+        self.num_obj = Numbers(10) 
+
+    def test_factorial(self):
+        #4.1
+        self.assertEqual(self.num_obj.factorial(5), 120)
+        self.assertEqual(self.num_obj.factorial(0), 1)
+        with self.assertRaises(ValueError):
+            self.num_obj.factorial(-1)
+
+    def test_sum_operations(self):
+        # 4.2
+        self.num_obj.addToSum(5)
+        self.assertEqual(self.num_obj.sum, 15)
+        self.num_obj.subtractFromSum(3)
+        self.assertEqual(self.num_obj.sum, 12)
+
+    def test_string_conversion(self):
+        # 4.3
+        self.assertEqual(self.num_obj.stringOfNumber(1), "one")
+        with self.assertRaises(ValueError):
+            self.num_obj.stringOfNumber(10)
+        with self.assertRaises(TypeError):
+            self.num_obj.stringOfNumber("1")
+
+class TestECG(unittest.TestCase):
+    def setUp(self):
+        self.ecg_obj = ECG()
+        self.test_signal = [0.1, 0.2, 1.2, 0.3, 0.1, 1.5, 0.2]
+
+    def test_detect_peaks(self):
+        # 5.1
+        peaks = self.ecg_obj.detect_peaks(self.test_signal, 0.5)
+        self.assertEqual(peaks, [2, 5])
+        self.assertEqual(self.ecg_obj.detect_peaks([1, 1, 1], 0.5), [])
+
+    def test_remove_baseline(self):
+        # 5.2
+        result = self.ecg_obj.remove_baseline(self.test_signal)
+        self.assertAlmostEqual(sum(result), 0, places=7)
+
+    def test_normalize(self):
+        # 5.3
+        result = self.ecg_obj.normalize(self.test_signal)
+        self.assertEqual(max(result), 1.0)
+        self.assertEqual(self.ecg_obj.normalize([0, 0]), [0, 0])
+
+    def test_count_peaks(self):
+        # 6.1
+        self.assertEqual(self.ecg_obj.count_peaks(self.test_signal, 0.5), 2)
+
+    def test_is_signal_valid(self):
+        # 6.3
+        self.assertTrue(self.ecg_obj.is_signal_valid([1, 2, 3]))
+        self.assertFalse(self.ecg_obj.is_signal_valid([]))
+        self.assertFalse(self.ecg_obj.is_signal_valid(["a", 1]))
+
+    def test_heart_rate(self):
+        peaks = [2, 5] 
+        fs = 1 # 1 sample per second -> interval = 3s -> 20 BPM
+        self.assertEqual(self.ecg_obj.heart_rate(peaks, fs), 20.0)
+        with self.assertRaises(ValueError):
+            self.ecg_obj.heart_rate([1], 1)
+
+if __name__ == '__main__':
+    unittest.main()

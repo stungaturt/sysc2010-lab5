@@ -1,8 +1,5 @@
 import math
-
 #Use ecg = [0.1, 0.2, 1.2, 0.3, 0.1, 1.5, 0.2] for unit testing
-
-import math
 
 class Numbers:
     def __init__(self, sum=0):
@@ -74,14 +71,8 @@ class ECG:
 
     #6.1
     def count_peaks(self, signal, threshold):
-        '''
-        This function return the total number of peaks
-        '''
-        peaks = 0
-
-        #Your Code Here
-
-        return peaks
+        peaks_list = self.detect_peaks(signal, threshold)
+        return len(peaks_list)
 
     #6.2
     def rr_intervals(self, peaks, fs):
@@ -95,7 +86,9 @@ class ECG:
         '''
         intervals = []
 
-        #Your Code Here
+        for i in range(len(peaks) - 1):
+            diff_in_samples = peaks[i+1] - peaks[i]
+            intervals.append(diff_in_samples / fs)
 
         return intervals
     
@@ -109,7 +102,12 @@ class ECG:
 
         Returns a boolean, True (1) if a proper signal, False (0) otherwise
         '''
-
+        if not isinstance(signal, list) or len(signal) == 0:
+            return False
+        for x in signal:
+            if not isinstance(x, (int, float)):
+                return False
+        return True
     #7
     def heart_rate(self, peaks, fs):
         '''
@@ -118,8 +116,9 @@ class ECG:
         
         This function should return the heart rate in (BPM)
         '''
-        heartRate = 0
-
-        #Your Code Here
-
-        return heartRate
+        if len(peaks) < 2:
+            raise ValueError("Less than 2 peaks: cannot calculate heart rate")
+        
+        intervals = self.rr_intervals(peaks, fs)
+        avg_interval = sum(intervals) / len(intervals)
+        return 60 / avg_interval
